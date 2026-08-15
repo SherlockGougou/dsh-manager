@@ -118,9 +118,27 @@ export async function checkUpdates(
   return { channels, checkedAt }
 }
 
-/** GitHub 仓库（应用自身 release 查询；默认值可在打包前改为实际仓库） */
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+/**
+ * 应用自身 GitHub 仓库（更新查询用）：
+ * 优先级：环境变量 DSHM_GH_REPO > package.json repository 字段 > 兜底值。
+ */
 export function appGitHubRepo(): string {
-  return process.env.DSHM_GH_REPO ?? 'dsh-manager/dsh-manager'
+  const envRepo = process.env.DSHM_GH_REPO
+  if (envRepo && envRepo.trim().length > 0) return envRepo.trim()
+  try {
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+      repository?: { url?: string }
+    }
+    const url = pkg.repository?.url ?? ''
+    const match = /github\.com[/:]([^/]+\/[^/.]+)/.exec(url)
+    if (match) return match[1]
+  } catch {
+    /* ignore */
+  }
+  return 'SherlockGougou/dsh-manager'
 }
 
 export interface GithubReleaseInfo {

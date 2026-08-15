@@ -9,10 +9,10 @@
     "name": "dsh-manager",
     "email": "dsh-manager@example.com"
   },
-  "homepage": "https://github.com/dsh-manager/dsh-manager",
+  "homepage": "https://github.com/SherlockGougou/dsh-manager",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dsh-manager/dsh-manager.git"
+    "url": "git+https://github.com/SherlockGougou/dsh-manager.git"
   },
   "scripts": {
     "dev": "electron-vite dev",

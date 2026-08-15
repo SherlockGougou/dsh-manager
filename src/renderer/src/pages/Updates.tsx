@@ -147,7 +147,7 @@ export default function Updates() {
                   {appInfo.latest && (
                     <button
                       className="btn"
-                      onClick={() => api.openPath('https://github.com/' + 'dsh-manager/dsh-manager/releases')}
+                      onClick={() => api.openPath('https://github.com/SherlockGougou/dsh-manager/releases')}
                     >
                       打开 Releases 页
                     </button>
