@@ -14,7 +14,12 @@ const skipCheck = process.argv.includes('--skip-check')
 
 if (!skipCheck) {
   console.log('== 发布前检查 ==')
-  execSync('node ' + join(root, 'scripts', 'check-release-ready.mjs'), { stdio: 'inherit' })
+  try {
+    execSync('node ' + join(root, 'scripts', 'check-release-ready.mjs'), { stdio: 'inherit' })
+  } catch {
+    console.error('发布前检查未通过，中止。修复后重试（或 --skip-check 跳过）。')
+    process.exit(1)
+  }
 }
 
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
