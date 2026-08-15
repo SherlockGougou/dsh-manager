@@ -80,7 +80,38 @@ src/
 
 - 本机 pnpm store-dir 被 hvigor 全局配置重定向 → 项目内 `.npmrc` 覆盖为 `.pnpm-store`
 - Electron 二进制下载受沙箱影响
-- DMG 构建依赖 hdiutil（磁盘镜像挂载），在受限沙箱中会失败（"操作不被允许"）；普通终端直接运行 pnpm dist:mac 即可生成 dmg + zip → 用 `HOME` 覆盖或设置 `ELECTRON_CACHE` 指向工作区
+- DMG 构建依赖 hdiutil
+
+
+## 发布到 GitHub Releases（CI 自动构建）
+
+推送 `v*` tag 即触发 `.github/workflows/release.yml`：
+
+| 平台 | 产物 | 运行器 |
+|---|---|---|
+| macOS | dmg + zip（arm64 + x64） | macos-latest |
+| Windows | NSIS 安装器（x64） | windows-latest |
+| Linux | AppImage + deb（x64） | ubuntu-latest |
+
+### 发布流程（三步）
+
+```sh
+pnpm bump 0.2.0          # 1. 提升版本（--dry-run 预览）
+git add -A && git commit -m "chore: bump to v0.2.0"
+git push                  # 2. 推送代码
+pnpm release:check        # 3a. 发布前检查（git 干净/tag 未占用/dist 无陈旧产物）
+pnpm release:tag          # 3b. 创建并推送 v0.2.0 tag（--dry-run 预览）
+                          #     GitHub Actions 自动构建三平台产物并发布 Release
+```
+
+### 说明
+
+- `electron-builder.yml` 已配置 `publish: github`（owner/repo 从 git remote 自动识别，CI 用内置 `GITHUB_TOKEN`）
+- CI 中 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过代码签名；正式分发前接入开发者证书（macOS `CSC_LINK` / Windows `WIN_CSC_LINK`）
+- 版本含 `-rc.N` 时 electron-builder 自动标记为 prerelease
+- 发布说明自动生成（两次 tag 之间的 git log）
+- 本地手动构建用 `pnpm dist:mac` 等（加 `--publish never` 不上传）
+（磁盘镜像挂载），在受限沙箱中会失败（"操作不被允许"）；普通终端直接运行 pnpm dist:mac 即可生成 dmg + zip → 用 `HOME` 覆盖或设置 `ELECTRON_CACHE` 指向工作区
 
 ## 安装包分发（electron-builder）
 
