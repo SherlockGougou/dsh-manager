@@ -39,11 +39,16 @@ function createWindow(): void {
   watchTheme(() => mainWindow, () => readPrefs().theme)
 
   mainWindow.on('ready-to-show', () => {
+    console.log('[dsh-manager] window ready-to-show')
     sendTheme(mainWindow, readPrefs().theme)
     mainWindow?.show()
   })
   mainWindow.webContents.on('did-finish-load', () => {
+    console.log('[dsh-manager] window did-finish-load')
     sendTheme(mainWindow, readPrefs().theme)
+  })
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    console.log('[dsh-manager] renderer gone: ' + JSON.stringify(details))
   })
 
   // 外链一律交给系统浏览器，禁止在应用内导航
@@ -60,11 +65,13 @@ function createWindow(): void {
   }
 
   mainWindow.on('closed', () => {
+    console.log('[dsh-manager] window closed')
     mainWindow = null
   })
 }
 
 app.whenReady().then(() => {
+  console.log('[dsh-manager] app ready')
   registerIpc()
   createWindow()
   // 应用内更新（打包安装后启用；开发模式仅提供 GitHub Release 信息）
@@ -93,5 +100,6 @@ app.on('before-quit', (event) => {
 })
 
 app.on('window-all-closed', () => {
+  console.log('[dsh-manager] window-all-closed windows=' + BrowserWindow.getAllWindows().length)
   if (process.platform !== 'darwin') app.quit()
 })

@@ -9,6 +9,11 @@
     "name": "dsh-manager",
     "email": "dsh-manager@example.com"
   },
+  "homepage": "https://github.com/dsh-manager/dsh-manager",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsh-manager/dsh-manager.git"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
@@ -21,11 +26,11 @@
     "bump": "node scripts/bump-version.mjs",
     "release:check": "node scripts/check-release-ready.mjs",
     "release:tag": "node scripts/release-tag.mjs",
-    "dist": "pnpm build && electron-builder",
+    "dist": "pnpm build && electron-builder --publish never",
     "dist:dir": "pnpm build && electron-builder --dir",
-    "dist:mac": "pnpm build && electron-builder --mac",
-    "dist:win": "pnpm build && electron-builder --win",
-    "dist:linux": "pnpm build && electron-builder --linux"
+    "dist:mac": "pnpm build && electron-builder --mac --publish never",
+    "dist:win": "pnpm build && electron-builder --win --publish never",
+    "dist:linux": "pnpm build && electron-builder --linux --publish never"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
