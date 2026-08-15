@@ -1,6 +1,6 @@
 {
   "name": "dsh-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DeepSeek Harness 独立管理器：健康检查与修复、插件管理、更新检查、备份恢复、实例托管与服务化（跨平台）",
   "private": true,
   "packageManager": "pnpm@10.34.5",

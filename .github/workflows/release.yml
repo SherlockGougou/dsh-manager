@@ -61,8 +61,9 @@ jobs:
         run: pnpm build
 
       # macOS：配置了签名/公证 secrets 时启用签名+公证，否则无签名回退
+      # 注意：step.if 不能读同一步骤 env 里的 secrets，必须用 secrets 上下文
       - name: Package and publish (macOS signed & notarized)
-        if: matrix.platform == 'macos-latest' && env.APPLE_ID != ''
+        if: matrix.platform == 'macos-latest' && secrets.APPLE_ID != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -74,7 +75,7 @@ jobs:
         run: npx electron-builder --mac --publish always
 
       - name: Package and publish (macOS unsigned fallback)
-        if: matrix.platform == 'macos-latest' && env.APPLE_ID == ''
+        if: matrix.platform == 'macos-latest' && secrets.APPLE_ID == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
