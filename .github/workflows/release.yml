@@ -60,7 +60,30 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Package and publish to GitHub Releases
+      # macOS：配置了签名/公证 secrets 时启用签名+公证，否则无签名回退
+      - name: Package and publish (macOS signed & notarized)
+        if: matrix.platform == 'macos-latest' && env.APPLE_ID != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          USE_HARD_LINKS: 'false'
+        run: npx electron-builder --mac --publish always
+
+      - name: Package and publish (macOS unsigned fallback)
+        if: matrix.platform == 'macos-latest' && env.APPLE_ID == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          USE_HARD_LINKS: 'false'
+        run: npx electron-builder --mac --publish always
+
+      # Windows / Linux
+      - name: Package and publish (Windows / Linux)
+        if: matrix.platform != 'macos-latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'

@@ -29,8 +29,12 @@ mac:
       arch: [arm64, x64]
     - target: zip
       arch: [arm64, x64]
-  # 无签名证书：跳过 codesign（分发前接入开发者证书后删除此行）
-  identity: null
+  # 签名：自动使用钥匙串中的 Developer ID Application 证书
+  # （CI 用 CSC_LINK=p12 路径 + CSC_KEY_PASSWORD 环境变量；无证书时设置
+  #   CSC_IDENTITY_AUTO_DISCOVERY=false 可跳过签名）
+  # 公证：设置 APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID
+  #   （或 APPLE_API_KEY / APPLE_API_KEY_ID / APPLE_API_ISSUER）后自动 notarytool 公证并 stapler
+  notarize: true
 
 dmg:
   title: DSH Manager
