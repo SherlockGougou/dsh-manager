@@ -34,6 +34,9 @@ jobs:
             args: --linux
             name: Linux (AppImage + deb)
     runs-on: ${{ matrix.platform }}
+    # secrets 不允许出现在步骤级 if 中：先在 job 级 env 捕获（env 可用于步骤 if）
+    env:
+      HAS_APPLE_SECRET: ${{ secrets.APPLE_ID != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,9 +64,8 @@ jobs:
         run: pnpm build
 
       # macOS：配置了签名/公证 secrets 时启用签名+公证，否则无签名回退
-      # 注意：step.if 不能读同一步骤 env 里的 secrets，必须用 secrets 上下文
       - name: Package and publish (macOS signed & notarized)
-        if: matrix.platform == 'macos-latest' && secrets.APPLE_ID != ''
+        if: matrix.platform == 'macos-latest' && env.HAS_APPLE_SECRET == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -75,7 +77,7 @@ jobs:
         run: npx electron-builder --mac --publish always
 
       - name: Package and publish (macOS unsigned fallback)
-        if: matrix.platform == 'macos-latest' && secrets.APPLE_ID == ''
+        if: matrix.platform == 'macos-latest' && env.HAS_APPLE_SECRET != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
