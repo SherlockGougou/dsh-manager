@@ -1,0 +1,54 @@
+{
+  "name": "dsh-manager",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness 独立管理器：健康检查与修复、插件管理、更新检查、备份恢复、实例托管与服务化（跨平台）",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "main": "./out/main/index.js",
+  "author": {
+    "name": "dsh-manager",
+    "email": "dsh-manager@example.com"
+  },
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "core:smoke": "tsx src/core/smoke.ts",
+    "icon": "node scripts/generate-icon.mjs",
+    "bump": "node scripts/bump-version.mjs",
+    "release:check": "node scripts/check-release-ready.mjs",
+    "release:tag": "node scripts/release-tag.mjs",
+    "dist": "pnpm build && electron-builder",
+    "dist:dir": "pnpm build && electron-builder --dir",
+    "dist:mac": "pnpm build && electron-builder --mac",
+    "dist:win": "pnpm build && electron-builder --win",
+    "dist:linux": "pnpm build && electron-builder --linux"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
+  },
+  "dependencies": {
+    "js-yaml": "^4.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
+  }
+}

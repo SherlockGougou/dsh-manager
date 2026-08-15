@@ -1,0 +1,82 @@
+# GitHub Releases 自动发布
+# 触发：推送 v* tag（pnpm release:tag 创建），或手动 workflow_dispatch
+# 产物：macOS dmg+zip（arm64+x64）/ Windows NSIS（x64）/ Linux AppImage+deb（x64）
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      note:
+        description: '发布说明备注（可选）'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --mac
+            name: macOS (dmg + zip, arm64+x64)
+          - platform: windows-latest
+            args: --win
+            name: Windows (NSIS x64)
+          - platform: ubuntu-latest
+            args: --linux
+            name: Linux (AppImage + deb)
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Core smoke (CI 无 DSH_HOME 场景)
+        run: DSH_HOME="$RUNNER_TEMP/dsh-empty-home" pnpm core:smoke
+        shell: bash
+
+      - name: Build
+        run: pnpm build
+
+      - name: Package and publish to GitHub Releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          USE_HARD_LINKS: 'false'
+        run: npx electron-builder ${{ matrix.args }} --publish always
+
+      - name: Upload artifacts (workflow 侧备份)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-artifacts
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: warn
+          retention-days: 30
