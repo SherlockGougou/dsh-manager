@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import type { ManagerPrefs } from '../../../core/types'
+import { useTheme } from '../hooks/useTheme'
+import type { ManagerPrefs, ThemeMode } from '../../../core/types'
 
 export default function Settings() {
+  const theme = useTheme()
   const [prefs, setPrefs] = useState<ManagerPrefs | null>(null)
   const [paths, setPaths] = useState<{ managerDir: string; backupsDir: string } | null>(null)
   const [saved, setSaved] = useState(false)
@@ -36,6 +38,31 @@ export default function Settings() {
 
       {prefs && (
         <>
+          <section className="card">
+            <h2>外观</h2>
+            <div className="row">
+              <span className="muted">主题：</span>
+              {(
+                [
+                  ['system', '跟随系统'],
+                  ['light', '浅色'],
+                  ['dark', '深色'],
+                ] as [ThemeMode, string][]
+              ).map(([value, label]) => (
+                <label key={value} className="checkbox">
+                  <input
+                    type="radio"
+                    name="theme"
+                    checked={theme.mode === value}
+                    onChange={() => theme.setMode(value)}
+                  />
+                  {label}
+                </label>
+              ))}
+              <span className="small muted">当前生效：{theme.effective === 'dark' ? '深色' : '浅色'}</span>
+            </div>
+          </section>
+
           <section className="card">
             <h2>备份偏好</h2>
             <div className="row">

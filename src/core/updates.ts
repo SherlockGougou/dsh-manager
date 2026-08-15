@@ -9,8 +9,14 @@ import type { UpdateChannel, UpdateReport } from './types.ts'
 const NPM_REGISTRY = 'https://registry.npmjs.org'
 const PYPI_JSON = 'https://pypi.org/pypi'
 
-async function fetchJson(url: string, timeoutMs = 8000): Promise<unknown> {
-  const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { accept: 'application/json' } })
+async function fetchJson(
+  url: string,
+  opts: { headers?: Record<string, string>; timeoutMs?: number } = {},
+): Promise<unknown> {
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(opts.timeoutMs ?? 8000),
+    headers: { accept: 'application/json', ...(opts.headers ?? {}) },
+  })
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   return res.json() as Promise<unknown>
 }
@@ -110,6 +116,47 @@ export async function checkUpdates(
   }
 
   return { channels, checkedAt }
+}
+
+/** GitHub 仓库（应用自身 release 查询；默认值可在打包前改为实际仓库） */
+export function appGitHubRepo(): string {
+  return process.env.DSHM_GH_REPO ?? 'dsh-manager/dsh-manager'
+}
+
+export interface GithubReleaseInfo {
+  tagName: string
+  publishedAt: string | null
+  body: string | null
+  assets: { name: string; size: number; downloadUrl: string }[]
+}
+
+/** 查询应用自身最新 GitHub Release（404=仓库未发布，返回 null） */
+export async function fetchGithubLatestRelease(
+  repo = appGitHubRepo(),
+  timeoutMs = 10_000,
+): Promise<GithubReleaseInfo | null> {
+  try {
+    const doc = (await fetchJson('https://api.github.com/repos/' + repo + '/releases/latest', {
+      headers: { 'User-Agent': 'dsh-manager' },
+      timeoutMs,
+    })) as {
+      tag_name?: string
+      published_at?: string
+      body?: string
+      assets?: { name?: string; size?: number; browser_download_url?: string }[]
+    }
+    if (!doc.tag_name) return null
+    return {
+      tagName: doc.tag_name,
+      publishedAt: doc.published_at ?? null,
+      body: doc.body ?? null,
+      assets: (doc.assets ?? [])
+        .filter((a) => typeof a.name === 'string' && typeof a.browser_download_url === 'string')
+        .map((a) => ({ name: a.name!, size: a.size ?? 0, downloadUrl: a.browser_download_url! })),
+    }
+  } catch {
+    return null
+  }
 }
 
 /** 批量检查已安装出树插件的 latest 版本（并发 4） */

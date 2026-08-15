@@ -21,6 +21,8 @@ import type {
   RepairResult,
   ServiceInfo,
   MarketplaceSearch,
+  ThemeMode,
+  AppUpdateInfo,
 } from '../../core/types'
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string }
@@ -92,6 +94,24 @@ export const api = {
 
   // 插件市场
   marketplace: (refresh?: boolean) => invoke<MarketplaceSearch>('dshm:marketplace', { refresh }),
+
+  // 主题
+  themeGet: () => invoke<ThemeMode>('dshm:themeGet'),
+  themeSet: (mode: ThemeMode) => invoke<'light' | 'dark'>('dshm:themeSet', mode),
+  onThemeChanged: (cb: (effective: 'light' | 'dark') => void) =>
+    window.dshm.on('dshm:theme-changed', cb),
+
+  // 应用内更新
+  appUpdateCheck: () => invoke<AppUpdateInfo>('dshm:appUpdateCheck'),
+  appUpdateDownload: () => invoke<AppUpdateInfo>('dshm:appUpdateDownload'),
+  appUpdateInstall: () => invoke<AppUpdateInfo>('dshm:appUpdateInstall'),
+  appUpdateState: () => invoke<AppUpdateInfo>('dshm:appUpdateState'),
+  onUpdateEvent: (cb: (info: AppUpdateInfo) => void) => window.dshm.on('dshm:update-event', cb),
+
+  // 窗口控制
+  windowMinimize: () => window.dshm.send('dshm:windowMinimize'),
+  windowToggleMaximize: () => window.dshm.send('dshm:windowToggleMaximize'),
+  windowClose: () => window.dshm.send('dshm:windowClose'),
 }
 
 /** 简单异步加载 Hook */

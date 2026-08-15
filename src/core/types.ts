@@ -213,11 +213,52 @@ export interface RestoreResult {
   errors: string[]
 }
 
+/** 主题模式 */
+export type ThemeMode = 'system' | 'light' | 'dark'
+
 /** 管理器偏好 */
 export interface ManagerPrefs {
   backup: { includeCredentials: boolean; includeNodeModules: boolean; includeCache: boolean; retention: number }
   update: { autoCheckOnStart: boolean; notifyOnUpdate: boolean }
   instances: { stopOnQuit: boolean }
+  /** 界面主题：跟随系统 / 浅色 / 深色 */
+  theme: ThemeMode
+}
+
+// ── 应用内更新 ──────────────────────────────────────────────────
+
+export type AppUpdateState =
+  | 'dev' // 开发模式（打包后 updater 才可用）
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'none'
+  | 'downloading'
+  | 'downloaded'
+  | 'error'
+  | 'unpublished'
+
+export interface AppUpdateAsset {
+  name: string
+  size: number
+  downloadUrl: string
+}
+
+export interface AppUpdateInfo {
+  currentVersion: string
+  state: AppUpdateState
+  /** GitHub 最新 release（API 查询，dev/打包均可用） */
+  latest: {
+    tagName: string
+    publishedAt: string | null
+    body: string | null
+    /** 当前平台可下载的安装包 */
+    assets: AppUpdateAsset[]
+  } | null
+  /** 下载进度 0-100 */
+  progress: number | null
+  error: string | null
+  message: string | null
 }
 
 // ── 实例管理 ────────────────────────────────────────────────────

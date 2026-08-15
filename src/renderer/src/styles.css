@@ -1,7 +1,11 @@
 :root {
+  /* 深色（默认） */
   --bg: #111418;
+  --bg-sidebar: #0d1014;
   --bg-card: #1a1f26;
   --bg-hover: #232a33;
+  --bg-input: #10151b;
+  --bg-output: #0d1014;
   --border: #2c3540;
   --text: #e6e9ee;
   --text-muted: #8b95a3;
@@ -10,6 +14,23 @@
   --warn: #d29922;
   --error: #f85149;
   --info: #58a6ff;
+}
+
+html[data-theme='light'] {
+  --bg: #f2f4f8;
+  --bg-sidebar: #e8ebf0;
+  --bg-card: #ffffff;
+  --bg-hover: #e4e8ee;
+  --bg-input: #ffffff;
+  --bg-output: #f6f8fa;
+  --border: #d5dbe3;
+  --text: #1f2328;
+  --text-muted: #5f6b78;
+  --accent: #2f6fe4;
+  --ok: #1a7f37;
+  --warn: #9a6700;
+  --error: #d1242f;
+  --info: #0969da;
 }
 
 * {
@@ -29,17 +50,89 @@ body,
 
 .app {
   display: flex;
+  flex-direction: column;
   height: 100vh;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── 无边框窗口标题栏 ───────────────── */
+.titlebar {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.titlebar-mac {
+  padding-left: 80px; /* macOS 红绿灯占位 */
+}
+
+.titlebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.titlebar-theme {
+  margin-left: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.window-controls {
+  display: flex;
+  margin-left: auto;
+  height: 100%;
+  align-items: center;
+}
+
+.win-btn {
+  width: 44px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.win-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.win-btn-close:hover {
+  background: #e81123;
+  color: #fff;
 }
 
 /* ── 侧边栏 ─────────────────────────── */
 .sidebar {
   width: 200px;
   flex-shrink: 0;
-  background: #0d1014;
+  background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  -webkit-app-region: no-drag;
 }
 
 .brand {
@@ -66,6 +159,7 @@ body,
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow-y: auto;
 }
 
 .nav-item {
@@ -88,7 +182,7 @@ body,
 }
 
 .nav-item.active {
-  background: rgba(77, 141, 255, 0.15);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
   color: var(--accent);
 }
 
@@ -162,7 +256,7 @@ table.kv {
 
 table.kv td {
   padding: 6px 4px;
-  border-bottom: 1px solid rgba(44, 53, 64, 0.5);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   vertical-align: top;
 }
 
@@ -187,7 +281,7 @@ table.checks th {
 
 table.checks td {
   padding: 8px;
-  border-bottom: 1px solid rgba(44, 53, 64, 0.6);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   vertical-align: top;
 }
 
@@ -213,43 +307,43 @@ table.checks td {
 }
 
 .badge-ok {
-  background: rgba(63, 185, 80, 0.15);
+  background: color-mix(in srgb, var(--ok) 15%, transparent);
   color: var(--ok);
 }
 
 .badge-warn {
-  background: rgba(210, 153, 34, 0.15);
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
   color: var(--warn);
 }
 
 .badge-error {
-  background: rgba(248, 81, 73, 0.15);
+  background: color-mix(in srgb, var(--error) 15%, transparent);
   color: var(--error);
 }
 
 .badge-info {
-  background: rgba(88, 166, 255, 0.15);
+  background: color-mix(in srgb, var(--info) 15%, transparent);
   color: var(--info);
 }
 
 .badge-skip {
-  background: rgba(139, 149, 163, 0.15);
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
   color: var(--text-muted);
 }
 
 .badge-kind-builtin-bundle {
-  background: rgba(77, 141, 255, 0.15);
+  background: color-mix(in srgb, var(--info) 15%, transparent);
   color: var(--info);
 }
 
 .badge-kind-out-of-tree-bundle {
-  background: rgba(63, 185, 80, 0.15);
+  background: color-mix(in srgb, var(--ok) 15%, transparent);
   color: var(--ok);
 }
 
 .badge-kind-plain-dep,
 .badge-kind-orphan {
-  background: rgba(139, 149, 163, 0.15);
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
   color: var(--text-muted);
 }
 
@@ -311,7 +405,7 @@ table.checks td {
 }
 
 .btn:hover {
-  background: #2b3540;
+  background: color-mix(in srgb, var(--bg-hover) 80%, var(--text));
 }
 
 .btn:disabled {
@@ -326,16 +420,16 @@ table.checks td {
 }
 
 .btn-primary:hover {
-  background: #3d7df0;
+  filter: brightness(1.1);
 }
 
 .btn-danger {
-  border-color: rgba(248, 81, 73, 0.5);
+  border-color: color-mix(in srgb, var(--error) 50%, transparent);
   color: var(--error);
 }
 
 .btn-warn {
-  border-color: rgba(210, 153, 34, 0.5);
+  border-color: color-mix(in srgb, var(--warn) 50%, transparent);
   color: var(--warn);
 }
 
@@ -347,7 +441,7 @@ table.checks td {
 
 .input,
 .select {
-  background: #10151b;
+  background: var(--bg-input);
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 8px;
@@ -392,7 +486,7 @@ table.checks td {
 /* ── 编辑器 ─────────────────────────── */
 .editor {
   width: 100%;
-  background: #0d1014;
+  background: var(--bg-output);
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 8px;
@@ -419,7 +513,7 @@ table.checks td {
 
 /* ── 输出 ───────────────────────────── */
 .output {
-  background: #0d1014;
+  background: var(--bg-output);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
@@ -435,7 +529,7 @@ table.checks td {
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
-  background: rgba(77, 141, 255, 0.1);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   border-radius: 4px;
   padding: 1px 5px;
 }
@@ -467,7 +561,7 @@ a:hover {
 }
 
 .output-warn {
-  border-color: rgba(210, 153, 34, 0.5);
+  border-color: color-mix(in srgb, var(--warn) 50%, transparent);
 }
 
 /* ── 修复动作库 ─────────────────────── */
@@ -476,7 +570,7 @@ a:hover {
   align-items: flex-start;
   gap: 14px;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(44, 53, 64, 0.6);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .repair-row:last-child {
@@ -490,6 +584,52 @@ a:hover {
 .repair-result {
   flex-basis: 100%;
   margin-top: 8px;
+}
+
+/* ── 更新进度 / 发布说明 ────────────── */
+.progress {
+  position: relative;
+  height: 22px;
+  background: var(--bg-hover);
+  border-radius: 11px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.release-details {
+  margin-top: 10px;
+}
+
+.release-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.asset-list {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.release-notes {
+  max-height: 300px;
 }
 
 /* ── 其他 ───────────────────────────── */
@@ -506,22 +646,22 @@ a:hover {
 }
 
 .summary-ok {
-  background: rgba(63, 185, 80, 0.12);
+  background: color-mix(in srgb, var(--ok) 12%, transparent);
   color: var(--ok);
 }
 
 .summary-warn {
-  background: rgba(210, 153, 34, 0.12);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
   color: var(--warn);
 }
 
 .summary-error {
-  background: rgba(248, 81, 73, 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
   color: var(--error);
 }
 
 .summary-info {
-  background: rgba(88, 166, 255, 0.12);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
   color: var(--info);
 }
 

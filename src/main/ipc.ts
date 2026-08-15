@@ -1,4 +1,7 @@
-import { ipcMain, shell } from 'electron'
+import { ipcMain, shell, BrowserWindow } from 'electron'
+import { applyTheme, effectiveTheme, sendTheme } from './theme.ts'
+import { checkAppUpdate, downloadAppUpdate, installAppUpdate, appUpdateState, setAppUpdateLatest } from './updater.ts'
+import { appGitHubRepo, fetchGithubLatestRelease } from '../core/updates.ts'
 import { detectEnvironment } from '../core/detect.ts'
 import { scanHome } from '../core/home.ts'
 import { readAllProfiles, readProfile, runPluginAction, dumpConfig } from '../core/profiles.ts'
@@ -139,6 +142,50 @@ export function registerIpc(): void {
 
   // ── 插件市场 ────────────────────────────────────────────────
   register('dshm:marketplace', async (payload: { refresh?: boolean }) => searchMarketplace({ refresh: payload?.refresh }))
+
+  // ── 主题 ─────────────────────────────────────────────────────
+  register('dshm:themeGet', async () => readPrefs().theme)
+  register('dshm:themeSet', async (mode: 'system' | 'light' | 'dark') => {
+    const prefs = readPrefs()
+    prefs.theme = mode
+    writePrefs(prefs)
+    applyTheme(mode)
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    sendTheme(win, mode)
+    return effectiveTheme(mode)
+  })
+
+  // ── 应用内更新 ────────────────────────────────────────────────
+  register('dshm:appUpdateCheck', async () => {
+    const gh = await fetchGithubLatestRelease(appGitHubRepo())
+    const latest = gh
+      ? {
+          tagName: gh.tagName,
+          publishedAt: gh.publishedAt,
+          body: gh.body,
+          assets: gh.assets.map((a) => ({ name: a.name, size: a.size, downloadUrl: a.downloadUrl })),
+        }
+      : null
+    setAppUpdateLatest(latest)
+    return checkAppUpdate()
+  })
+  register('dshm:appUpdateDownload', async () => downloadAppUpdate())
+  register('dshm:appUpdateInstall', async () => installAppUpdate())
+  register('dshm:appUpdateState', async () => appUpdateState())
+
+  // ── 窗口控制（无边框窗口） ──────────────────────────────────
+  ipcMain.on('dshm:windowMinimize', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.minimize()
+  })
+  ipcMain.on('dshm:windowToggleMaximize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return
+    if (win.isMaximized()) win.unmaximize()
+    else win.maximize()
+  })
+  ipcMain.on('dshm:windowClose', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.close()
+  })
 
   // ── 系统 ─────────────────────────────────────────────────────
   register('dshm:openPath', async (path: string) => shell.openPath(path))

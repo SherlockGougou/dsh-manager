@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import { registerIpc } from './ipc.ts'
 import { autoStartInstances, stopAllInstances } from '../core/instances.ts'
 import { readPrefs } from '../core/manager-config.ts'
+import { applyTheme, watchTheme, sendTheme } from './theme.ts'
+import { setupUpdater } from './updater.ts'
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -19,6 +21,10 @@ function createWindow(): void {
     minHeight: 640,
     title: 'DSH Manager',
     show: false,
+    // 无边框纯净窗口：macOS 保留原生红绿灯（hiddenInset），win/linux 用自绘控件
+    frame: false,
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 14, y: 14 },
     backgroundColor: '#111418',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -28,7 +34,17 @@ function createWindow(): void {
     },
   })
 
-  mainWindow.on('ready-to-show', () => mainWindow?.show())
+  // 主题初始化：应用偏好 → nativeTheme → 推送生效主题到渲染层
+  applyTheme(readPrefs().theme)
+  watchTheme(() => mainWindow, () => readPrefs().theme)
+
+  mainWindow.on('ready-to-show', () => {
+    sendTheme(mainWindow, readPrefs().theme)
+    mainWindow?.show()
+  })
+  mainWindow.webContents.on('did-finish-load', () => {
+    sendTheme(mainWindow, readPrefs().theme)
+  })
 
   // 外链一律交给系统浏览器，禁止在应用内导航
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -51,6 +67,8 @@ function createWindow(): void {
 app.whenReady().then(() => {
   registerIpc()
   createWindow()
+  // 应用内更新（打包安装后启用；开发模式仅提供 GitHub Release 信息）
+  setupUpdater(() => mainWindow)
   // 自动拉起标记了 autoStart 的 dsh 实例（不影响主窗口启动）
   void autoStartInstances().then((result) => {
     if (result.started.length > 0) {

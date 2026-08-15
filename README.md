@@ -19,6 +19,8 @@
 | 备份与恢复 | DSH_HOME 全量备份（默认排除凭据/node_modules）、manifest、恢复 dry-run 预览、恢复前自动转移现状文件 |
 | **系统服务化** | 实例安装为 launchd LaunchAgent（macOS）/ systemd user unit（Linux）/ 启动项（Windows），开机自启 + 崩溃重启，独立于管理器进程 |
 | 设置 | 备份保留策略、启动自检更新、退出时停止实例、管理器路径 |
+| 外观 | 浅色/深色/跟随系统主题自动切换（nativeTheme 联动）；无边框纯净窗口（macOS 原生红绿灯 + Win/Linux 自绘控件） |
+| 应用内更新 | electron-updater + GitHub Releases 联动：检查/下载进度/一键重启安装；开发模式提供安装包链接（DSHM_GH_REPO 可配置仓库） |
 
 ## 快速开始
 
@@ -69,6 +71,7 @@ src/
 |---|---|
 | `DSHM_MANAGER_DIR` | 管理器自身数据目录（默认 `~/.dsh-manager`） |
 | `DSHM_SERVICE_DIR` | 系统服务单元目录覆盖（测试/沙箱） |
+| `DSHM_GH_REPO` | 应用更新查询的 GitHub 仓库（默认 `dsh-manager/dsh-manager`） |
 | `DSH_HOME` | 被管理的 dsh 数据目录（与 dsh 语义一致） |
 
 ## Roadmap

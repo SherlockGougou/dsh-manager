@@ -24,6 +24,7 @@ export const DEFAULT_PREFS: ManagerPrefs = {
   backup: { includeCredentials: false, includeNodeModules: false, includeCache: false, retention: 10 },
   update: { autoCheckOnStart: true, notifyOnUpdate: true },
   instances: { stopOnQuit: false },
+  theme: 'system',
 }
 
 export function ensureManagerDir(): string {
@@ -41,6 +42,7 @@ export function readPrefs(): ManagerPrefs {
         backup: { ...DEFAULT_PREFS.backup, ...(raw.backup ?? {}) },
         update: { ...DEFAULT_PREFS.update, ...(raw.update ?? {}) },
         instances: { ...DEFAULT_PREFS.instances, ...(raw.instances ?? {}) },
+        theme: raw.theme ?? DEFAULT_PREFS.theme,
       }
     }
   } catch {
@@ -51,6 +53,7 @@ export function readPrefs(): ManagerPrefs {
     backup: { ...DEFAULT_PREFS.backup },
     update: { ...DEFAULT_PREFS.update },
     instances: { ...DEFAULT_PREFS.instances },
+    theme: DEFAULT_PREFS.theme,
   }
 }
 
